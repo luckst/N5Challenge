@@ -1,4 +1,5 @@
-﻿using N5.Challenge.Infrasctructure.Repositories;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using N5.Challenge.Infrasctructure.Repositories;
 
 namespace N5.Challenge.Infrasctructure.RepositoryPattern
 {
@@ -6,6 +7,9 @@ namespace N5.Challenge.Infrasctructure.RepositoryPattern
     {
         Task CommitAsync();
         Task RollbackAsync();
+        Task CommitTransactionAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
+        IExecutionStrategy CreateExecutionEstrategy();
         IPermissionRepository GetPermissionRepository();
     }
 }

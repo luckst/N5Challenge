@@ -23,9 +23,14 @@ namespace N5.Challenge.Infrasctructure.Repositories
             _context.Dispose();
         }
 
-        public async Task<Permission> GetAsync(int id)
+        public async Task<Permission> GetAsync(Guid id)
         {
             return await _context.Permissions.FindAsync(id);
+        }
+
+        public async Task<Permission> GetEmployeePermission(Guid employeeId, Guid permissionTypeId)
+        {
+            return await _context.Permissions.Include(p => p.Employee).Include(p => p.PermissionType).Where(p => p.EmployeeId == employeeId && p.PermissionTypeId == permissionTypeId).FirstOrDefaultAsync();
         }
 
         public async Task<List<EmployeePermissionDto>> GetEmployeePermissions(Guid employeeId)

@@ -1,4 +1,5 @@
-﻿using N5.Challenge.Domain;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using N5.Challenge.Domain;
 using N5.Challenge.Infrasctructure.Repositories;
 using N5.Challenge.Infrasctructure.RepositoryPattern;
 
@@ -16,12 +17,22 @@ namespace N5.Challenge.Infrasctructure
         public async Task CommitAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            await _context.SaveChangesAsync();
             await _context.Database.CommitTransactionAsync();
         }
 
-        public async Task BeginTransactionAsync()
+        public IExecutionStrategy CreateExecutionEstrategy()
         {
-            await _context.Database.BeginTransactionAsync();
+            return _context.Database.CreateExecutionStrategy();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
 
         public async Task RollbackAsync()

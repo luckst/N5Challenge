@@ -13,15 +13,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.Infrastructure", "4.Infra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.Entities", "5.Entities", "{CB6EACA0-649F-444D-B913-EEB51A306614}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.Entities", "N5.Challenge.Entities\N5.Challenge.Entities.csproj", "{06933173-B3C1-47C3-BAD4-41B0569D6AAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N5.Challenge.Entities", "N5.Challenge.Entities\N5.Challenge.Entities.csproj", "{06933173-B3C1-47C3-BAD4-41B0569D6AAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.Infrasctructure", "N5.Challenge.Infrasctructure\N5.Challenge.Infrasctructure.csproj", "{E3E4DCD3-3829-4100-9AEE-69734AFB7D04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N5.Challenge.Infrasctructure", "N5.Challenge.Infrasctructure\N5.Challenge.Infrasctructure.csproj", "{E3E4DCD3-3829-4100-9AEE-69734AFB7D04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.Domain", "N5.Challenge.Domain\N5.Challenge.Domain.csproj", "{BC5851A1-DE70-4441-BDF6-4E6DD9678B17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N5.Challenge.Domain", "N5.Challenge.Domain\N5.Challenge.Domain.csproj", "{BC5851A1-DE70-4441-BDF6-4E6DD9678B17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.Application", "N5.Challenge.Application\N5.Challenge.Application.csproj", "{F9B5B350-6D35-4DE7-A110-60213EBF12AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N5.Challenge.Application", "N5.Challenge.Application\N5.Challenge.Application.csproj", "{F9B5B350-6D35-4DE7-A110-60213EBF12AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.API", "N5.Challenge.API\N5.Challenge.API.csproj", "{942429F3-21C8-4447-9ADE-92EFF4878E1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N5.Challenge.API", "N5.Challenge.API\N5.Challenge.API.csproj", "{942429F3-21C8-4447-9ADE-92EFF4878E1B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6.Tests", "6.Tests", "{C9BD6158-A171-494A-97C2-654DE9DC9473}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "N5.Challenge.UnitTests", "N5.Challenge.UnitTests\N5.Challenge.UnitTests.csproj", "{8116010A-C256-41C7-B24A-15AEE0749675}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +53,10 @@ Global
 		{942429F3-21C8-4447-9ADE-92EFF4878E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{942429F3-21C8-4447-9ADE-92EFF4878E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{942429F3-21C8-4447-9ADE-92EFF4878E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8116010A-C256-41C7-B24A-15AEE0749675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8116010A-C256-41C7-B24A-15AEE0749675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8116010A-C256-41C7-B24A-15AEE0749675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8116010A-C256-41C7-B24A-15AEE0749675}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +67,7 @@ Global
 		{BC5851A1-DE70-4441-BDF6-4E6DD9678B17} = {E24A8D5A-C235-4DE4-9895-A52EDAC411ED}
 		{F9B5B350-6D35-4DE7-A110-60213EBF12AA} = {821BA41A-7975-41B0-9CF3-8615D1FBBF6B}
 		{942429F3-21C8-4447-9ADE-92EFF4878E1B} = {4EC59FBC-E9DC-4B3C-A703-5FC752103171}
+		{8116010A-C256-41C7-B24A-15AEE0749675} = {C9BD6158-A171-494A-97C2-654DE9DC9473}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B37B917E-DE5D-4BBD-A589-AA3859B5F51C}

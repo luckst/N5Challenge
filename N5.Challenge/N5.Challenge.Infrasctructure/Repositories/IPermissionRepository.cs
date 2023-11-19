@@ -7,5 +7,6 @@ namespace N5.Challenge.Infrasctructure.Repositories
     public interface IPermissionRepository: IRepository<Permission>
     {
         Task<List<EmployeePermissionDto>> GetEmployeePermissions(Guid employeeId);
+        Task<Permission> GetEmployeePermission(Guid employeeId, Guid permissionTypeId);
     }
 }

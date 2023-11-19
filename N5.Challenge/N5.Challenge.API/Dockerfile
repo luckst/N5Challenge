@@ -23,4 +23,5 @@ RUN dotnet publish "N5.Challenge.API.csproj" -c Release -o /app/publish /p:UseAp
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "N5.Challenge.API.dll"]
