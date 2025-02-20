@@ -1,0 +1,6 @@
+services:
+  n5.challenge.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"

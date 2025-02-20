@@ -11,29 +11,52 @@ using N5.Challenge.Infrasctructure.RepositoryPattern;
 using Nest;
 using Serilog;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.CustomSchemaIds(s => s.FullName.Replace("+", "."));
 });
 
-// ELastic search config
-var pool = new SingleNodeConnectionPool(new Uri(builder.Configuration["ElasticSearch:Url"]!));
-var settings = new ConnectionSettings(pool)
-    .DefaultIndex(builder.Configuration["ElasticSearch:PermissionIndex"]!)
-    .MaximumRetries(3);
-var elasticClient = new ElasticClient(settings);
+// Elastic search config
+var esSection = builder.Configuration.GetSection("ElasticSearch");
+var esUrl = esSection["Url"] ?? "https://localhost:9200";
+var esUser = esSection["UserName"] ?? "elastic";
+var esPass = esSection["Password"] ?? "";
+var disableCertValidation = esSection["DisableCertificateValidation"] ?? "false";
 
-builder.Services.AddSingleton(elasticClient);
+var pool = new SingleNodeConnectionPool(new Uri(esUrl));
+var connectionSettings = new ConnectionSettings(pool)
+    .BasicAuthentication(esUser, esPass)
+    .DefaultIndex("my_index")
+    // Habilita el modo debug
+    .EnableDebugMode()  
+    // Callback que se ejecuta al completar cada request
+    .OnRequestCompleted(details =>
+    {
+        if (details.RequestBodyInBytes != null)
+            Console.WriteLine("### ES REQUEST ###\n" + Encoding.UTF8.GetString(details.RequestBodyInBytes));
 
-// serilog config
+        if (details.ResponseBodyInBytes != null)
+            Console.WriteLine("### ES RESPONSE ###\n" + Encoding.UTF8.GetString(details.ResponseBodyInBytes));
+    });
+
+if (disableCertValidation.Equals("true", StringComparison.OrdinalIgnoreCase))
+{
+    connectionSettings.ServerCertificateValidationCallback((sender, cert, chain, errors) => true);
+}
+
+var esClient = new ElasticClient(connectionSettings);
+
+builder.Services.AddSingleton(esClient);
+
+// Serilog config
 var logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 builder.Services.AddSingleton(logger);
 
@@ -46,18 +69,13 @@ builder.Services.AddMediatR(Assembly.GetAssembly(typeof(GetEmployeePermissionsQu
 
 string dbConnectionString = string.Format(builder.Configuration.GetConnectionString("N5Challenge_db")!, Environment.GetEnvironmentVariable("DB_Server"));
 
-builder.Services
-    .AddDbContextPool<ServiceDbContext>(options =>
+builder.Services.AddDbContextPool<ServiceDbContext>(options =>
+{
+    options.UseSqlServer(dbConnectionString, sqlOptions =>
     {
-
-        options.UseSqlServer(dbConnectionString,
-        sqlServerOptionsAction: sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-        });
-    },
-        10
-    );
+        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+    });
+}, poolSize: 10);
 
 var app = builder.Build();
 
@@ -78,19 +96,17 @@ app.Run();
 
 void SeedDatabase(IHost host)
 {
-    using (var scope = host.Services.CreateScope())
+    using var scope = host.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    try
     {
-        var services = scope.ServiceProvider;
-        try
-        {
-            var context = services.GetRequiredService<ServiceDbContext>();
-            new ServiceSeeding().SeedAsync(context).Wait();
-        }
-        catch (Exception ex)
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError("An error occurred while seeding the service database");
-            logger.LogError(ex.ToString());
-        }
+        var context = services.GetRequiredService<ServiceDbContext>();
+        new ServiceSeeding().SeedAsync(context).Wait();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError("An error occurred while seeding the service database");
+        logger.LogError(ex.ToString());
     }
 }

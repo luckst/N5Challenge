@@ -1,0 +1,35 @@
+services:
+  n5-challenge:
+    build:
+      context: ..
+      dockerfile: N5.Challenge.API/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - sql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_Server=sql
+      - ElasticSearch__Url=http://elasticsearch:9200
+      - ElasticSearch__UserName=elastic
+      - ElasticSearch__Password=MyElasticPass123
+      - ElasticSearch__DisableCertificateValidation=true
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Test123!
+    ports:
+      - "1433:1433"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    container_name: elasticsearch_container
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - ELASTIC_PASSWORD=MyElasticPass123
+    ports:
+      - "9200:9200"

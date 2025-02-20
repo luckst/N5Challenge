@@ -35,10 +35,15 @@ namespace N5.Challenge.Infrasctructure.Repositories
 
         public async Task<List<EmployeePermissionDto>> GetEmployeePermissions(Guid employeeId)
         {
-            return await _context.Permissions.Include(p => p.Employee).Include(p => p.PermissionType).Where(p => p.EmployeeId == employeeId).Select(p => new EmployeePermissionDto
+            var permissions = await _context.Permissions.Include(p => p.Employee).Include(p => p.PermissionType).Where(p => p.EmployeeId == employeeId).Select(p => new EmployeePermissionDto
             {
-
+                EmployeeId = p.EmployeeId,
+                PermissionTypeId = p.PermissionTypeId,
+                Enabled = p.Enabled,
+                PermissionTypeName = p.PermissionType.Name
             }).ToListAsync();
+
+            return permissions;
         }
 
         public Task UpdateAsync(Permission entity)

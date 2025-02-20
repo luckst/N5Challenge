@@ -32,9 +32,18 @@ namespace N5.Challenge.Application.Queries
                 CancellationToken cancellationToken
             )
             {
-                using (var repository = _unitOfWork.GetPermissionRepository())
+                try
                 {
-                    return await repository.GetEmployeePermissions(query.EmployeeId);
+                    using (var repository = _unitOfWork.GetPermissionRepository())
+                    {
+                        var permissions = await repository.GetEmployeePermissions(query.EmployeeId);
+                        return permissions;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception or handle it as needed
+                    throw new ApplicationException("An error occurred while retrieving employee permissions.", ex);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Diagnostics;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using N5.Challenge.Domain;
@@ -60,7 +61,14 @@ namespace N5.Challenge.Application.Commands
 
                     await repository.CreateAsync(permission);
                     await _unitOfWork.CommitAsync();
-                    await _elasticSearchRepository.PersistAsync(permission);
+                    try
+                    {
+                        await _elasticSearchRepository.PersistAsync(permission);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
                 }
                 return Unit.Value;
             }

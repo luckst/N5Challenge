@@ -13,7 +13,7 @@ namespace N5.Challenge.Infrasctructure.ElasticSearch
             
         public async Task PersistAsync(T resgitry)
         {   
-            var indexResponse = await _client.IndexDocumentAsync<T>(resgitry);
+            await _client.IndexDocumentAsync<T>(resgitry);
         }
     }
 }

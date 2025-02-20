@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docker .NET Core Attach (Docker Compose)",
+      "type": "docker",
+      "request": "attach",
+      "platform": "netCore",
+      "containers": [
+        {
+          "service": "n5-challenge-api", // Nombre del servicio en docker-compose
+          "sourceFilesPath": "${workspaceFolder}",
+          "targetProjectPath": "/app" // Ruta interna dentro del contenedor
+        }
+      ]
+    }
+  ]
+}
