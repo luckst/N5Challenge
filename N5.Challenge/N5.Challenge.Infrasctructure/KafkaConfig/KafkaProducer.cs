@@ -2,19 +2,22 @@
 
 namespace N5.Challenge.Infrasctructure.KafkaConfig
 {
-    public class KafkaProducer<K, V> : IKafkaProducer<K, V>
+    public class KafkaProducer<TKey, TValue> : IKafkaProducer<TKey, TValue>
     {
-        IProducer<K, V> kafkaHandle;
+        private readonly IProducer<TKey, TValue> _producer;
 
-        public KafkaProducer(KafkaClientHandle handle)
+        public KafkaProducer(ProducerConfig config)
         {
-            kafkaHandle = new DependentProducerBuilder<K, V>(handle.Handle).Build();
+            _producer = new ProducerBuilder<TKey, TValue>(config).Build();
         }
 
-        public Task ProduceAsync(string topic, Message<K, V> message)
-            => this.kafkaHandle.ProduceAsync(topic, message);
-
-        public void Flush(TimeSpan timeout)
-            => this.kafkaHandle.Flush(timeout);
+        public async Task ProduceAsync(string topic, TKey key, TValue value)
+        {
+            await _producer.ProduceAsync(topic, new Message<TKey, TValue>
+            {
+                Key = key,
+                Value = value
+            });
+        }
     }
 }

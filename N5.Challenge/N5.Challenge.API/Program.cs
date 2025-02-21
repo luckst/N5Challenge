@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using N5.Challenge.Application.Commands;
 using N5.Challenge.Application.Queries;
+using N5.Challenge.Entities.Settings;
 using N5.Challenge.Infrasctructure;
 using N5.Challenge.Infrasctructure.ElasticSearch;
 using N5.Challenge.Infrasctructure.KafkaConfig;
+using N5.Challenge.Infrasctructure.KafkaConfig.Producers;
 using N5.Challenge.Infrasctructure.RepositoryPattern;
 using Nest;
 using Serilog;
@@ -56,12 +58,28 @@ var esClient = new ElasticClient(connectionSettings);
 
 builder.Services.AddSingleton(esClient);
 
+// Kafka config
+var kafkaSection = builder.Configuration.GetSection("Kafka");
+builder.Services.Configure<KafkaSettings>(kafkaSection);
+
+var kafkaSettings = new KafkaSettings();
+kafkaSection.Bind(kafkaSettings);
+builder.Services.AddSingleton(kafkaSettings);
+
+var producerConfig = new Confluent.Kafka.ProducerConfig
+{
+    BootstrapServers = kafkaSettings.ProducerSettings.BootstrapServers
+};
+
+builder.Services.AddSingleton(producerConfig);
+
 // Serilog config
 var logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 builder.Services.AddSingleton(logger);
 
-builder.Services.AddSingleton<KafkaClientHandle>();
 builder.Services.AddSingleton<IKafkaProducer<string, string>, KafkaProducer<string, string>>();
+
+builder.Services.AddSingleton<IOperationProducer, OperationProducer>();
 
 builder.Services.AddScoped(typeof(IElasticSearchRepository<>), typeof(ElasticSearchRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

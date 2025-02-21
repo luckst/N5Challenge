@@ -2,9 +2,8 @@
 
 namespace N5.Challenge.Infrasctructure.KafkaConfig
 {
-    public interface IKafkaProducer<K, V>
+    public interface IKafkaProducer<TKey, TValue>
     {
-        Task ProduceAsync(string topic, Message<K, V> message);
-        void Flush(TimeSpan timeout);
+        Task ProduceAsync(string topic, TKey key, TValue value);
     }
 }

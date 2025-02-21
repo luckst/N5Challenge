@@ -26,6 +26,7 @@ To run this project, you'll need the following software:
 - .NET SDK 7
 - Docker
 - Make sure you have installed and ran Elasticsearch
+- Make sure you have installed and ran Apache Kafka and Zookeeper
 
 ### Running the Project
 
@@ -40,16 +41,19 @@ To run this project, you'll need the following software:
 4. The API will be available at `http://localhost:8080/swagger`.
 5. The SQL Server will be available at `localhost:1433`.
 6. Elasticsearch will be available at `http://localhost:9200`.
+7. Kafka will be available at `localhost:9092`.
 
 ### Environment Variables
 
-Make sure to set the following environment variables in the [docker-compose.yml](http://_vscodecontentref_/2) file:
+Make sure to set the following environment variables in the [docker-compose.yml](http://_vscodecontentref_/0) file:
 
 - `ASPNETCORE_ENVIRONMENT=Development`
 - `DB_Server=sql`
 - `ElasticSearch__Url=http://elasticsearch:9200`
-- `ElasticSearch__UserName=elastic`
+- elastic`ElasticSearch__UserName=`
 - `ElasticSearch__Password=MyElasticPass123`
 - `ElasticSearch__DisableCertificateValidation=true`
 - `SA_PASSWORD=Test123!`
 - `ELASTIC_PASSWORD=MyElasticPass123`
+- `Kafka__ProducerSettings__BootstrapServers=kafka:29092`
+- `Kafka__ConsumerSettings__BootstrapServers=kafka:29092`

@@ -1,11 +1,16 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
+using Confluent.Kafka;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using N5.Challenge.Domain;
+using N5.Challenge.Entities.Dtos;
 using N5.Challenge.Entities.Models;
 using N5.Challenge.Infrasctructure.ElasticSearch;
 using N5.Challenge.Infrasctructure.Exceptions;
+using N5.Challenge.Infrasctructure.KafkaConfig;
+using N5.Challenge.Infrasctructure.KafkaConfig.Producers;
 using N5.Challenge.Infrasctructure.RepositoryPattern;
 
 namespace N5.Challenge.Application.Commands
@@ -20,11 +25,13 @@ namespace N5.Challenge.Application.Commands
         {
             private readonly IUnitOfWork _unitOfWork;
             private readonly IElasticSearchRepository<Permission> _elasticSearchRepository;
+            private readonly IOperationProducer _operationProducer;
 
-            public Handler(IUnitOfWork unitOfWork, IElasticSearchRepository<Permission> elasticSearchRepository)
+            public Handler(IUnitOfWork unitOfWork, IElasticSearchRepository<Permission> elasticSearchRepository, IOperationProducer operationProducer)
             {
                 _unitOfWork = unitOfWork;
                 _elasticSearchRepository = elasticSearchRepository;
+                _operationProducer = operationProducer;
             }
 
             public async Task<Unit> Handle(
@@ -64,11 +71,12 @@ namespace N5.Challenge.Application.Commands
                     try
                     {
                         await _elasticSearchRepository.PersistAsync(permission);
+                        await _operationProducer.SendOperationAsync("modify");
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.Message);
-                    }
+                    }                    
                 }
                 return Unit.Value;
             }
