@@ -71,12 +71,22 @@ namespace N5.Challenge.Application.Commands
                     try
                     {
                         await _elasticSearchRepository.PersistAsync(permission);
-                        await _operationProducer.SendOperationAsync("modify");
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.Message);
-                    }                    
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            await _operationProducer.SendOperationAsync("create");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                    }
                 }
                 return Unit.Value;
             }

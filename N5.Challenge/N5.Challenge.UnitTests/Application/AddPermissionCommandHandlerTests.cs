@@ -3,6 +3,7 @@ using N5.Challenge.Application.Commands;
 using N5.Challenge.Domain;
 using N5.Challenge.Infrasctructure.ElasticSearch;
 using N5.Challenge.Infrasctructure.Exceptions;
+using N5.Challenge.Infrasctructure.KafkaConfig.Producers;
 using N5.Challenge.Infrasctructure.Repositories;
 using N5.Challenge.Infrasctructure.RepositoryPattern;
 
@@ -13,6 +14,7 @@ namespace N5.Challenge.UnitTests.Application
     {
         private Mock<IElasticSearchRepository<Permission>> _elasticSearchRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IOperationProducer> _operationProducerMock;
         private AddPermissionCommandHandler.Handler _handler;
 
         [SetUp]
@@ -20,7 +22,8 @@ namespace N5.Challenge.UnitTests.Application
         {
             _elasticSearchRepositoryMock = new Mock<IElasticSearchRepository<Permission>>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _handler = new AddPermissionCommandHandler.Handler(_unitOfWorkMock.Object, _elasticSearchRepositoryMock.Object);
+            _operationProducerMock = new Mock<IOperationProducer>();
+            _handler = new AddPermissionCommandHandler.Handler(_unitOfWorkMock.Object, _elasticSearchRepositoryMock.Object, _operationProducerMock.Object);
         }
 
         [Test]
@@ -87,6 +90,43 @@ namespace N5.Challenge.UnitTests.Application
 
             permissionRepositoryMock.Verify(x => x.CreateAsync(It.Is<Permission>(p => p.EmployeeId == command.EmployeeId && p.PermissionTypeId == command.PermissionTypeId)), Times.Once);
             _elasticSearchRepositoryMock.Verify(x => x.PersistAsync(It.Is<Permission>(p => p.EmployeeId == command.EmployeeId && p.PermissionTypeId == command.PermissionTypeId)), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldSendOperationAsync()
+        {
+            var command = new AddPermissionCommandHandler.Command
+            {
+                EmployeeId = Guid.NewGuid(),
+                PermissionTypeId = Guid.NewGuid()
+            };
+
+            var permissionRepositoryMock = new Mock<IPermissionRepository>();
+            _unitOfWorkMock.Setup(x => x.GetPermissionRepository()).Returns(permissionRepositoryMock.Object);
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            _operationProducerMock.Verify(x => x.SendOperationAsync(It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldHandleExceptionWhenPersistingToElasticSearch()
+        {
+            var command = new AddPermissionCommandHandler.Command
+            {
+                EmployeeId = Guid.NewGuid(),
+                PermissionTypeId = Guid.NewGuid()
+            };
+
+            var permissionRepositoryMock = new Mock<IPermissionRepository>();
+            _unitOfWorkMock.Setup(x => x.GetPermissionRepository()).Returns(permissionRepositoryMock.Object);
+
+            _elasticSearchRepositoryMock.Setup(x => x.PersistAsync(It.IsAny<Permission>())).ThrowsAsync(new Exception("ElasticSearch error"));
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            _elasticSearchRepositoryMock.Verify(x => x.PersistAsync(It.IsAny<Permission>()), Times.Once);
+            _operationProducerMock.Verify(x => x.SendOperationAsync(It.IsAny<string>()), Times.Once);
         }
     }
 }

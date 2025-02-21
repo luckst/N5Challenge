@@ -3,7 +3,9 @@ using N5.Challenge.Domain;
 using N5.Challenge.Entities.Models;
 using N5.Challenge.Infrasctructure.ElasticSearch;
 using N5.Challenge.Infrasctructure.Exceptions;
+using N5.Challenge.Infrasctructure.KafkaConfig.Producers;
 using N5.Challenge.Infrasctructure.RepositoryPattern;
+using System.Diagnostics;
 using System.Security;
 
 namespace N5.Challenge.Application.Commands
@@ -18,11 +20,13 @@ namespace N5.Challenge.Application.Commands
         {
             private readonly IUnitOfWork _unitOfWork;
             private readonly IElasticSearchRepository<Permission> _elasticSearchRepository;
+            private readonly IOperationProducer _operationProducer;
 
-            public Handler(IUnitOfWork unitOfWork, IElasticSearchRepository<Permission> elasticSearchRepository)
+            public Handler(IUnitOfWork unitOfWork, IElasticSearchRepository<Permission> elasticSearchRepository, IOperationProducer operationProducer)
             {
                 _unitOfWork = unitOfWork;
                 _elasticSearchRepository = elasticSearchRepository;
+                _operationProducer = operationProducer;
             }
 
             public async Task<Unit> Handle(
@@ -52,7 +56,25 @@ namespace N5.Challenge.Application.Commands
                     employeePermission.Enabled = command.Enabled;
                     await repository.UpdateAsync(employeePermission);
                     await _unitOfWork.CommitAsync();
-                    await _elasticSearchRepository.PersistAsync(employeePermission);
+                    try
+                    {
+                        await _elasticSearchRepository.PersistAsync(employeePermission);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            await _operationProducer.SendOperationAsync("modify");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                    }
                 }
                 return Unit.Value;
             }
