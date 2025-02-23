@@ -87,13 +87,14 @@ builder.Services.AddMediatR(Assembly.GetAssembly(typeof(GetEmployeePermissionsQu
 
 string dbConnectionString = string.Format(builder.Configuration.GetConnectionString("N5Challenge_db")!, Environment.GetEnvironmentVariable("DB_Server"));
 
-builder.Services.AddDbContextPool<ServiceDbContext>(options =>
+builder.Services.AddDbContext<ServiceDbContext>(options =>
 {
     options.UseSqlServer(dbConnectionString, sqlOptions =>
     {
         sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
     });
-}, poolSize: 10);
+});
+
 
 var app = builder.Build();
 
@@ -128,3 +129,10 @@ void SeedDatabase(IHost host)
         logger.LogError(ex.ToString());
     }
 }
+
+static WebApplicationBuilder CreateHostBuilder(string[]? args = null)
+{
+    return WebApplication.CreateBuilder(args ?? Array.Empty<string>());
+}
+
+public partial class Program { }

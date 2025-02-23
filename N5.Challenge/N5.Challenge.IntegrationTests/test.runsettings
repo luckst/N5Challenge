@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <!-- Disables AppDomain usage, which often disables shadow copying as well -->
+    <DisableAppDomain>true</DisableAppDomain>
+
+    <!-- If you want to turn off test parallelization, you can do so here. -->
+    <!-- <MaxCpuCount>1</MaxCpuCount> -->
+  </RunConfiguration>
+</RunSettings>

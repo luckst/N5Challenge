@@ -1,6 +1,0 @@
-services:
-  n5.challenge.api:
-    image: ${DOCKER_REGISTRY-}n5challengeapi
-    build:
-      context: .
-      dockerfile: N5.Challenge.API/Dockerfile
