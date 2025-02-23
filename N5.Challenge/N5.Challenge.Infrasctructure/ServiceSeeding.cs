@@ -9,7 +9,10 @@ namespace N5.Challenge.Infrasctructure
         {
             try
             {
-                await context.Database.MigrateAsync();
+                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                {
+                    await context.Database.MigrateAsync();
+                }
             }
             catch (Exception ex)
             {
